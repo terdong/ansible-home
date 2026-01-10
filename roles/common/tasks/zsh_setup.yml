@@ -1,0 +1,50 @@
+---
+- name: Install Zsh and Git
+  apt:
+    name: [zsh, git, curl]
+    state: present
+
+- name: Install Oh My Zsh
+  shell: |
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  become_user: "{{ ansible_user }}"
+  args:
+    creates: "/home/{{ ansible_user }}/.oh-my-zsh"
+
+- name: Download Zsh Plugins
+  git:
+    repo: "{{ item.repo }}"
+    dest: "/home/{{ ansible_user }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
+  become_user: "{{ ansible_user }}"
+  loop:
+    - {
+        name: "zsh-autosuggestions",
+        repo: "https://github.com/zsh-users/zsh-autosuggestions",
+      }
+    - {
+        name: "zsh-syntax-highlighting",
+        repo: "https://github.com/zsh-users/zsh-syntax-highlighting.git",
+      }
+
+- name: Set Zsh Theme to 'macovsky-ruby'
+  lineinfile:
+    path: "/home/{{ ansible_user }}/.zshrc"
+    regexp: "^ZSH_THEME="
+    line: 'ZSH_THEME="macovsky-ruby"'
+
+- name: Add time to macovsky-ruby theme
+  lineinfile:
+    path: "/home/{{ ansible_user }}/.zshrc"
+    line: 'PROMPT="[%D{% raw %}{%H:%M:%S}{% endraw %}] $PROMPT"'
+    insertafter: EOF
+
+- name: Configure .zshrc
+  lineinfile:
+    path: "/home/{{ ansible_user }}/.zshrc"
+    regexp: "^plugins="
+    line: "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)"
+
+- name: Set Default Shell to Zsh
+  user:
+    name: "{{ ansible_user }}"
+    shell: /bin/zsh

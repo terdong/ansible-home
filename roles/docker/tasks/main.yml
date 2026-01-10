@@ -64,11 +64,6 @@
     - "{{ config_dir }}/dockman/stacks"
     - "{{ config_dir }}/dockman/config"
 
-- name: Remove failed Dockman container
-  docker_container:
-    name: dockman
-    state: absent
-
 - name: Run Dockman via Docker
   community.docker.docker_container:
     name: dockman

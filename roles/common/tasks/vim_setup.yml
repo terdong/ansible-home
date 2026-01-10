@@ -1,0 +1,49 @@
+---
+- name: Install Vim
+  apt:
+    name: vim
+    state: present
+
+- name: Configure Vim (.vimrc)
+  copy:
+    dest: "~{{ ansible_user }}/.vimrc"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+    content: |
+      " 기본 설정
+      set number            " 줄 번호 표시
+      set relativenumber    " 상대 줄 번호 (이동 편리)
+      set hlsearch          " 검색 결과 하이라이트
+      set ignorecase        " 검색 시 대소문자 무시
+      set smartcase         " 대문자 포함 시 대소문자 구분
+      set laststatus=2      " 상태 표시줄 상시 표시
+      set cursorline        " 현재 커서 위치 줄 표시
+
+      " 편집 설정
+      set expandtab         " Tab을 공백으로 변환
+      set shiftwidth=4      " 자동 들여쓰기 너비
+      set tabstop=4         " Tab 너비
+      set smartindent       " 스마트 들여쓰기
+      set clipboard=unnamedplus " 시스템 클립보드 사용
+
+      " 기능 및 외관
+      syntax on             " 구문 강조 활성화
+      filetype indent plugin on " 파일 형식별 플러그인/들여쓰기 활성화
+      set encoding=utf-8    " 인코딩 설정
+      set t_Co=256          " 256색상 모드
+
+      " OSC 52를 이용한 원격 클립보드 복사 함수
+      function! CopyOSC52(str)
+          let b64 = system('base64', a:str)
+          let b64 = substitute(b64, '\n', '', 'g')
+          let osc = "\e]52;c;" . b64 . "\x07"
+
+          " 에러 방지를 위해 if문으로 명확히 분리
+          if !v:shell_error
+              silent! call writefile([osc], '/dev/tty', 'b')
+          endif
+      endfunction
+
+      " 비주얼 모드에서 y를 누르면 클립보드로 전송
+      vnoremap y y:call CopyOSC52(@")<CR>

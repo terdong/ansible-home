@@ -3,7 +3,7 @@
   hosts: hc4
   become: true
   roles:
-    - common # Install utilities (git, curl, etc.)
+    - { role: common, tags: ["common_only"] } # Install utilities (git, curl, etc.)
     - optimize # Optimize system
     - storage # Configure fstab, mount, and swappiness
     - log2ram # SD card optimization (Requires Reboot)

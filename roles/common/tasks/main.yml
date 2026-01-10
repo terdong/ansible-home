@@ -3,3 +3,13 @@
   apt:
     update_cache: true
     cache_valid_time: 3600
+
+- name: Set timezone to Asia/Seoul
+  timezone:
+    name: Asia/Seoul
+
+- name: Include Vim settings
+  include_tasks: vim_setup.yml
+
+- name: Include Zsh settings
+  include_tasks: zsh_setup.yml
