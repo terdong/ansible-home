@@ -1,0 +1,3 @@
+---
+# Log2Ram configuration
+log2ram_size: "256M"

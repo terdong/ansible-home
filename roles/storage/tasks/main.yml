@@ -1,13 +1,13 @@
 ---
 - name: Get UUID of /boot partition
   set_fact:
-    boot_uuid: "{{ ansible_mounts | selectattr('mount', 'equalto', '/boot') | map(attribute='uuid') | first }}"
+    boot_uuid: "{{ ansible_mounts | selectattr('mount', 'equalto', boot_mount_path) | map(attribute='uuid') | first }}"
 
 - name: Convert /boot mount to UUID in fstab
   mount:
-    path: /boot
+    path: "{{ boot_mount_path }}"
     src: "UUID={{ boot_uuid }}"
-    fstype: "{{ ansible_mounts | selectattr('mount', 'equalto', '/boot') | map(attribute='fstype') | first }}"
+    fstype: "{{ ansible_mounts | selectattr('mount', 'equalto', boot_mount_path) | map(attribute='fstype') | first }}"
     opts: "defaults,noatime,nodiratime"
     state: present
   when: boot_uuid is defined

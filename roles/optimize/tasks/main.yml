@@ -1,0 +1,50 @@
+---
+- name: Apply Kernel and Network optimizations (sysctl)
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    # Network buffer size optimizations
+    - { name: 'net.core.rmem_max', value: '16777216' }
+    - { name: 'net.core.wmem_max', value: '16777216' }
+    - { name: 'net.ipv4.tcp_rmem', value: '4096 87380 16777216' }
+    - { name: 'net.ipv4.tcp_wmem', value: '4096 65536 16777216' }
+    # Increase file handle limits
+    - { name: 'fs.file-max', value: '1000000' }
+    # Enable TCP Fast Open
+    - { name: 'net.ipv4.tcp_fastopen', value: '3' }
+
+- name: Disable unnecessary system services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop:
+    - bluetooth.service  # 서버에서 블루투스 불필요
+    - cups.service       # 프린터 출력 서비스 불필요
+    - avahi-daemon.service # 네트워크 탐색이 필요 없다면 비활성화
+  register: service_result
+  failed_when: >
+    service_result.msg is defined and
+    "Could not find the requested service" not in service_result.msg and
+    service_result is failed
+
+- name: Install and enable Irqbalance
+  apt:
+    name: irqbalance
+    state: present
+
+- name: Enable fstrim timer for SSD/SD Card health
+  systemd:
+    name: fstrim.timer
+    state: started
+    enabled: true
+
+- name: Persist I/O scheduler setting (none) via udev rule
+  copy:
+    dest: /etc/udev/rules.d/60-scheduler.rules
+    content: |
+      ACTION=="add|change", KERNEL=="mmcblk*", ATTR{queue/scheduler}="none"
+      ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/scheduler}="none"
