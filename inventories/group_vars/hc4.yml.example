@@ -1,0 +1,5 @@
+---
+# Samba Configuration
+samba_shares:
+  - name: "name"
+    path: "/foo/bar"

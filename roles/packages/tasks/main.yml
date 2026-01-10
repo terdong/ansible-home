@@ -18,14 +18,20 @@
     name:
       - ufw
       - snapd
-      - apport #apport 관련 패키지 (apport, apport-core-dump-handler, apport-symptoms): 시스템 오류 발생 시 보고서를 생성하는 도구입니다. 개인용 서버에서는 자원만 소모하므로 삭제가 권장됩니다.
+      #apport 관련 패키지 (apport, apport-core-dump-handler, apport-symptoms): 시스템 오류 발생 시 보고서를 생성하는 도구입니다. 개인용 서버에서는 자원만 소모하므로 삭제가 권장됩니다.
+      - apport
       - apport-core-dump-handler
       - apport-symptoms
-      - byobu #터미널 창 분할 및 관리를 돕는 도구입니다. tmux나 screen을 직접 쓰는 것이 익숙하다면 불필요합니다.
-      - landscape-common #Ubuntu의 유료 관리 서비스인 Landscape를 위한 클라이언트 패키지입니다. 개인 사용자는 거의 사용하지 않습니다.
-      - telnet #보안에 취약한 원격 접속 프로토콜입니다. 보안을 위해 SSH 사용을 권장하며 삭제하는 것이 좋습니다.
-      - ftp #보안이 취약한 파일 전송 프로토콜입니다. SFTP 사용을 권장하며 불필요 시 삭제합니다.
-      - friendly-recovery #복구 모드 메뉴를 제공하는 도구입니다. SSH로만 접속하는 헤드리스(Headless) 서버 환경에서는 활용도가 낮습니다.
+      #터미널 창 분할 및 관리를 돕는 도구입니다. tmux나 screen을 직접 쓰는 것이 익숙하다면 불필요합니다.
+      - byobu
+      #Ubuntu의 유료 관리 서비스인 Landscape를 위한 클라이언트 패키지입니다. 개인 사용자는 거의 사용하지 않습니다.
+      - landscape-common
+      #보안에 취약한 원격 접속 프로토콜입니다. 보안을 위해 SSH 사용을 권장하며 삭제하는 것이 좋습니다.
+      - telnet
+      #보안이 취약한 파일 전송 프로토콜입니다. SFTP 사용을 권장하며 불필요 시 삭제합니다.
+      - ftp
+      #복구 모드 메뉴를 제공하는 도구입니다. SSH로만 접속하는 헤드리스(Headless) 서버 환경에서는 활용도가 낮습니다.
+      - friendly-recovery
     state: absent
     purge: true
 

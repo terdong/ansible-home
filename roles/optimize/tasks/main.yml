@@ -22,9 +22,12 @@
     state: stopped
     enabled: false
   loop:
-    - bluetooth.service  # 서버에서 블루투스 불필요
-    - cups.service       # 프린터 출력 서비스 불필요
-    - avahi-daemon.service # 네트워크 탐색이 필요 없다면 비활성화
+    # 서버에서 블루투스 불필요
+    - bluetooth.service
+    # 프린터 출력 서비스 불필요
+    - cups.service
+    # 네트워크 탐색이 필요 없다면 비활성화
+    - avahi-daemon.service
   register: service_result
   failed_when: >
     service_result.msg is defined and

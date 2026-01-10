@@ -2,3 +2,6 @@
 .ansible/
 .history
 *.log
+**/inventory.ini
+**/hc4.yml
+**/ansible.cfg

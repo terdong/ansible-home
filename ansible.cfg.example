@@ -1,0 +1,15 @@
+[defaults]
+inventory = ./inventories/inventory.ini
+# Connection account (Replace with your actual username)
+remote_user = your_user_name
+# Set to False when using SSH key authentication
+ask_pass = False
+# Skip "yes/no" confirmation for host key verification
+host_key_checking = False
+# Output logs in a more readable format
+stdout_callback = yaml
+log_path = ./ansible.log
+deprecation_warnings=False
+
+[ssh_connection]
+pipelining = True
