@@ -1,0 +1,29 @@
+---
+- name: Check if swapfile exists
+  stat:
+    path: "{{ swap_path }}"
+  register: swap_stat
+
+- name: Create and setup swapfile
+  block:
+    - name: Create swapfile
+      command: "dd if=/dev/zero of={{ swap_path }} bs=1M count={{ swap_size_mb }}"
+
+    - name: Set permissions
+      file:
+        path: "{{ swap_path }}"
+        mode: '0600'
+
+    - name: Format and enable
+      shell: |
+        mkswap {{ swap_path }}
+        swapon {{ swap_path }}
+
+    - name: Add to fstab
+      mount:
+        path: none
+        src: "{{ swap_path }}"
+        fstype: swap
+        opts: sw
+        state: present
+  when: not swap_stat.stat.exists

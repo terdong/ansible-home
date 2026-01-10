@@ -7,6 +7,10 @@
     - optimize # Optimize system
     - storage # Configure fstab, mount, and swappiness
     - log2ram # SD card optimization (Requires Reboot)
+    - { role: swapfile, tags: ["swapfile_only"] }
     - zram # RAM swap configuration (Requires Service Restart)
     - samba # Network share configuration
     - { role: packages, tags: ["pkg_only"] }
+    - { role: docker, tags: ["docker_only"] }
+    - { role: nginx_proxy_manager, tags: ["nginx_proxy_manager_only"] }
+    - { role: cloudflare, tags: ["cloudflare_only"] }

@@ -10,6 +10,7 @@ host_key_checking = False
 stdout_callback = yaml
 log_path = ./ansible.log
 deprecation_warnings=False
+remote_tmp = /tmp/.ansible-${USER}/tmp
 
 [ssh_connection]
 pipelining = True

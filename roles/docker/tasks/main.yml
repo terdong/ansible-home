@@ -1,0 +1,86 @@
+---
+- name: Create Docker directory
+  file:
+    path: /etc/docker
+    state: directory
+
+- name: Set Docker data-root (Run before install)
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "data-root": "{{ docker_root_dir }}/docker"
+      }
+  when: docker_root_dir != ""
+
+- name: Install Docker dependencies
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+    state: present
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=arm64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install Docker Engine
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: latest
+    update_cache: true
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user | default(ansible_env.USER) }}"
+    groups: docker
+    append: yes
+
+- name: Ensure Docker service is started
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Create Dockman directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0775'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ config_dir }}/dockman/stacks"
+    - "{{ config_dir }}/dockman/config"
+
+- name: Remove failed Dockman container
+  docker_container:
+    name: dockman
+    state: absent
+
+- name: Run Dockman via Docker
+  community.docker.docker_container:
+    name: dockman
+    image: ghcr.io/ra341/dockman:latest
+    state: started
+    recreate: true
+    restart_policy: always
+    env:
+      DOCKMAN_COMPOSE_ROOT: "{{ config_dir }}/dockman/stacks"
+    volumes:
+      - "{{ config_dir }}/dockman/stacks:/{{ config_dir }}/dockman/stacks"
+      - "{{ config_dir }}/dockman/config:/config"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    published_ports:
+      - "8866:8866"

@@ -1,0 +1,25 @@
+---
+- name: Create Nginx Proxy Manager directories
+  file:
+    path: "{{ config_dir }}/nginx-proxy-manager/{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - data
+    - letsencrypt
+
+- name: Run Nginx Proxy Manager Container
+  community.docker.docker_container:
+    name: npm
+    image: jc21/nginx-proxy-manager:latest
+    state: started
+    restart_policy: always
+    published_ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - "{{ config_dir }}/nginx-proxy-manager/data:/data"
+      - "{{ config_dir }}/nginx-proxy-manager/letsencrypt:/etc/letsencrypt"

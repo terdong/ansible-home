@@ -1,2 +1,2 @@
-[hc4]
+[your_group]
 your_ip ansible_user=your_user_name ansible_port=your_port ansible_python_interpreter=/usr/bin/python3

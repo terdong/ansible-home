@@ -28,7 +28,7 @@
 - name: Ensure /home bind mount is preserved with noatime
   mount:
     path: /home
-    src: /archives/contents_01/home
+    src: "{{ home_root_dir }}/home"
     fstype: none
     opts: "bind,noatime,nodiratime"
     state: present
