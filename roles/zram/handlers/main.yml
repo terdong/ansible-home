@@ -1,0 +1,5 @@
+---
+- name: Restart Zram
+  service:
+    name: zramswap
+    state: restarted

@@ -1,0 +1,31 @@
+---
+- name: Check if Log2Ram is installed
+  stat:
+    path: /usr/local/bin/log2ram
+  register: log2ram_check
+
+- name: Install Log2Ram if not present
+  block:
+    - name: Download Log2Ram installer
+      get_url:
+        url: https://github.com/azlux/log2ram/archive/master.tar.gz
+        dest: /tmp/log2ram.tar.gz
+
+    - name: Extract Log2Ram
+      unarchive:
+        src: /tmp/log2ram.tar.gz
+        dest: /tmp
+        remote_src: true
+
+    - name: Run Log2Ram installer
+      shell: "cd /tmp/log2ram-master && chmod +x install.sh && ./install.sh"
+  when: not log2ram_check.stat.exists
+
+- name: Configure Log2Ram settings
+  lineinfile:
+    path: /etc/log2ram.conf
+    regexp: "^SIZE="
+    line: "SIZE={{ log2ram_size }}"
+  notify: Reboot System
+  vars:
+    reboot_msg: "Rebooting to apply Log2Ram changes"

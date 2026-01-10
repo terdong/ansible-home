@@ -1,0 +1,18 @@
+---
+# Log2Ram configuration
+log2ram_size: "256M"
+
+# Zram configuration
+zram_percent: 60
+zram_priority: 100
+zram_algo: "zstd"
+
+# Fstab configuration
+boot_mount_path: "/boot"
+
+# Samba Configuration
+samba_shares:
+  - name: "contents_00"
+    path: "/archives/contents_00"
+  - name: "contents_01"
+    path: "/archives/contents_01"

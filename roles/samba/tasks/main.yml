@@ -1,0 +1,29 @@
+---
+- name: Install Samba package
+  apt:
+    name: samba
+    state: present
+
+- name: Check if share paths exist
+  stat:
+    path: "{{ item.path }}"
+  loop: "{{ samba_shares }}"
+  register: path_status
+
+- name: Configure Samba shares (Only for existing directories)
+  blockinfile:
+    path: /etc/samba/smb.conf
+    block: |
+      {% for result in path_status.results %}
+      {% if result.stat.exists and result.stat.isdir %}
+      [{{ result.item.name }}]
+         path = {{ result.item.path }}
+         browseable = yes
+         read only = no
+         guest ok = no
+         create mask = 0775
+         directory mask = 0775
+         veto files = /lost+found
+      {% endif %}
+      {% endfor %}
+  notify: Restart Samba Service

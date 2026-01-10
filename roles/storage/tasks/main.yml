@@ -1,0 +1,41 @@
+---
+- name: Get UUID of /boot partition
+  set_fact:
+    boot_uuid: "{{ ansible_mounts | selectattr('mount', 'equalto', '/boot') | map(attribute='uuid') | first }}"
+
+- name: Convert /boot mount to UUID in fstab
+  mount:
+    path: /boot
+    src: "UUID={{ boot_uuid }}"
+    fstype: "{{ ansible_mounts | selectattr('mount', 'equalto', '/boot') | map(attribute='fstype') | first }}"
+    opts: "defaults,noatime,nodiratime"
+    state: present
+  when: boot_uuid is defined
+
+- name: Apply noatime to physical ext4 partitions
+  mount:
+    path: "{{ item.mount }}"
+    src: "{{ item.device }}"
+    fstype: "{{ item.fstype }}"
+    opts: "defaults,noatime,nodiratime,commit=30"
+    state: present
+  when:
+    - item.fstype in ['ext4']
+    - "'bind' not in item.options"
+    - item.mount != '/home'
+  loop: "{{ ansible_mounts }}"
+
+- name: Ensure /home bind mount is preserved with noatime
+  mount:
+    path: /home
+    src: /archives/contents_01/home
+    fstype: none
+    opts: "bind,noatime,nodiratime"
+    state: present
+
+- name: Set swappiness to 10
+  sysctl:
+    name: vm.swappiness
+    value: "10"
+    state: present
+    reload: true

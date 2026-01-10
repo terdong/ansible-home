@@ -1,0 +1,25 @@
+---
+- name: Configure zram-tools settings
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - {
+        path: "/etc/default/zramswap",
+        regexp: "^PERCENT=",
+        line: "PERCENT={{ zram_percent }}",
+      }
+    - {
+        path: "/etc/default/zramswap",
+        regexp: "^PRIORITY=",
+        line: "PRIORITY={{ zram_priority }}",
+      }
+    - {
+        path: "/etc/default/zramswap",
+        regexp: "^ALGO=",
+        line: "ALGO={{ zram_algo }}",
+      }
+  loop_control:
+    label: "{{ item.path }}"
+  notify: Restart Zram

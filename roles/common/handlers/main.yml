@@ -1,0 +1,4 @@
+---
+- name: Reboot System
+  reboot:
+    msg: "{{ reboot_msg | default('Rebooting triggered by Ansible') }}"

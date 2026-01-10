@@ -1,0 +1,10 @@
+---
+- name: HC4 Infrastructure Initial Setup
+  hosts: hc4
+  become: true
+  roles:
+    - common # Install utilities (git, curl, etc.)
+    - storage # Configure fstab, mount, and swappiness
+    - samba # Network share configuration
+    - log2ram # SD card optimization (Requires Reboot)
+    - zram # RAM swap configuration (Requires Service Restart)
