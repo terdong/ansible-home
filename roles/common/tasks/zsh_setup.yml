@@ -9,12 +9,12 @@
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   become_user: "{{ ansible_user }}"
   args:
-    creates: "/home/{{ ansible_user }}/.oh-my-zsh"
+    creates: "{{ user_home_dir }}/.oh-my-zsh"
 
 - name: Download Zsh Plugins
   git:
     repo: "{{ item.repo }}"
-    dest: "/home/{{ ansible_user }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
+    dest: "{{ user_home_dir }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
   become_user: "{{ ansible_user }}"
   loop:
     - {
@@ -28,21 +28,27 @@
 
 - name: Set Zsh Theme to 'macovsky-ruby'
   lineinfile:
-    path: "/home/{{ ansible_user }}/.zshrc"
+    path: "{{ user_home_dir }}/.zshrc"
     regexp: "^ZSH_THEME="
     line: 'ZSH_THEME="macovsky-ruby"'
 
+- name: Configure .zshrc
+  lineinfile:
+    path: "{{ user_home_dir }}/.zshrc"
+    regexp: "^plugins="
+    line: "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)"
+
 - name: Add time to macovsky-ruby theme
   lineinfile:
-    path: "/home/{{ ansible_user }}/.zshrc"
+    path: "{{ user_home_dir }}/.zshrc"
     line: 'PROMPT="[%D{% raw %}{%H:%M:%S}{% endraw %}] $PROMPT"'
     insertafter: EOF
 
-- name: Configure .zshrc
+- name: Add neofetch
   lineinfile:
-    path: "/home/{{ ansible_user }}/.zshrc"
-    regexp: "^plugins="
-    line: "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)"
+    path: "{{ user_home_dir }}/.zshrc"
+    line: "neofetch"
+    insertafter: EOF
 
 - name: Set Default Shell to Zsh
   user:

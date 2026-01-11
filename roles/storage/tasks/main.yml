@@ -1,13 +1,13 @@
 ---
 - name: Get UUID of /boot partition
   set_fact:
-    boot_uuid: "{{ ansible_mounts | selectattr('mount', 'equalto', boot_mount_path) | map(attribute='uuid') | first }}"
+    boot_uuid: "{{ ansible_mounts | selectattr('mount', 'equalto', boot_mount_dir) | map(attribute='uuid') | first }}"
 
 - name: Convert /boot mount to UUID in fstab
   mount:
-    path: "{{ boot_mount_path }}"
+    path: "{{ boot_mount_dir }}"
     src: "UUID={{ boot_uuid }}"
-    fstype: "{{ ansible_mounts | selectattr('mount', 'equalto', boot_mount_path) | map(attribute='fstype') | first }}"
+    fstype: "{{ ansible_mounts | selectattr('mount', 'equalto', boot_mount_dir) | map(attribute='fstype') | first }}"
     opts: "defaults,noatime,nodiratime"
     state: present
   when: boot_uuid is defined
@@ -28,7 +28,7 @@
 - name: Ensure /home bind mount is preserved with noatime
   mount:
     path: /home
-    src: "{{ home_root_dir }}/home"
+    src: "{{ home_root_dir }}"
     fstype: none
     opts: "bind,noatime,nodiratime"
     state: present

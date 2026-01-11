@@ -7,9 +7,10 @@
       - curl
       - wget
       - httpie
-      - net-tools
       - nethogs
       - ncdu
+      - lm-sensors
+      - iproute2
     state: latest
     update_cache: true
 

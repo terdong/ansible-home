@@ -16,6 +16,8 @@
     image: jc21/nginx-proxy-manager:latest
     state: started
     restart_policy: always
+    networks:
+      - name: hc4_npm_bridge
     published_ports:
       - "80:80"
       - "81:81"

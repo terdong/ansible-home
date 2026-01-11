@@ -1,4 +1,3 @@
----
 # Log2Ram configuration
 log2ram_size: "256M"
 
@@ -8,16 +7,18 @@ zram_priority: 100
 zram_algo: "zstd"
 
 # Fstab configuration
-boot_mount_path: "/boot"
+boot_mount_dir: "/boot"
 
-home_root_dir: "/"
+home_root_dir: "/home"
+
+user_home_dir: "{{ home_root_dir }}/{{ ansible_user }}"
 
 # Config directory
-config_dir: "/home/{{ ansible_user }}/.config"
+config_dir: "{{ user_home_dir }}/.config"
 
-cloudflare_tunnel_token: ""
-
-docker_path: ""
+docker_root_data_dir: "/var/lib/docker"
 
 swap_path: "/swapfile"
 swap_size_mb: 4096
+
+cloudflare_tunnel_token: ""

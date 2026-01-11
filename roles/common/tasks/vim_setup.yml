@@ -6,7 +6,7 @@
 
 - name: Configure Vim (.vimrc)
   copy:
-    dest: "~{{ ansible_user }}/.vimrc"
+    dest: "{{ user_home_dir }}/.vimrc"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0644"

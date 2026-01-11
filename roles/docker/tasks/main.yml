@@ -9,9 +9,9 @@
     dest: /etc/docker/daemon.json
     content: |
       {
-        "data-root": "{{ docker_root_dir }}/docker"
+        "data-root": "{{ docker_root_dir }}"
       }
-  when: docker_root_dir != ""
+  when: docker_root_dir != "" and docker_root_dir is directory
 
 - name: Install Docker dependencies
   apt:
@@ -53,6 +53,10 @@
     state: started
     enabled: true
 
+- name: Create Docker Network for NPM
+  community.docker.docker_network:
+    name: hc4_npm_bridge
+
 - name: Create Dockman directories
   file:
     path: "{{ item }}"
@@ -71,6 +75,8 @@
     state: started
     recreate: true
     restart_policy: always
+    networks:
+      - name: hc4_npm_bridge
     env:
       DOCKMAN_COMPOSE_ROOT: "{{ config_dir }}/dockman/stacks"
     volumes:
