@@ -1,0 +1,57 @@
+---
+- name: Create Caddy Config Directory
+  file:
+    path: "{{ config_dir }}/caddy"
+    state: directory
+    mode: '0755'
+
+- name: Generate hashes for each proxy
+  shell: "docker run --rm caddy caddy hash-password --plaintext '{{ item.password_plain }}'"
+  register: hashed_results
+  loop: "{{ caddy_proxies }}"
+  when: item.password_plain is defined
+  delegate_to: localhost
+  changed_when: false
+
+- name: Generate Caddyfile from template
+  template:
+    src: Caddyfile.j2
+    dest: "{{ config_dir }}/caddy/Caddyfile"
+    mode: '0644'
+  register: caddyfile_status
+
+- name: Create HTML directory
+  file:
+    path: "{{ config_dir }}/caddy/html"
+    state: directory
+    mode: '0755'
+
+- name: Copy index.html to server
+  copy:
+    src: index.html
+    dest: "{{ config_dir }}/caddy/html/index.html"
+    mode: '0644'
+
+- name: Run Caddy Container
+  community.docker.docker_container:
+    name: caddy
+    image: caddy:latest
+    restart_policy: always
+    networks:
+      - name: hc4_npm_bridge
+    published_ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # For HTTP/3
+    volumes:
+      - "{{ config_dir }}/caddy/Caddyfile:/etc/caddy/Caddyfile"
+      - "{{ config_dir }}/caddy/html:/var/www/html"
+      - "{{ config_dir }}/caddy/data:/data"
+      - "{{ config_dir }}/caddy/config:/config"
+    state: started
+
+- name: Reload Caddy configuration
+  community.docker.docker_container_exec:
+    container: caddy
+    command: caddy reload --config /etc/caddy/Caddyfile
+  when: caddyfile_status.changed

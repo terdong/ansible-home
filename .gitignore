@@ -6,3 +6,4 @@
 **/all.yml
 **/hc4.yml
 **/ansible.cfg
+**/roles/caddy/files/index.html

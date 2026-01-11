@@ -13,4 +13,5 @@
     - { role: packages, tags: ["pkg_only"] }
     - { role: docker, tags: ["docker_only"] }
     - { role: nginx_proxy_manager, tags: ["nginx_proxy_manager_only"] }
+    # - { role: caddy, tags: ["caddy_only"] }
     - { role: cloudflare, tags: ["cloudflare_only"] }

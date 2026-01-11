@@ -1,53 +1,51 @@
-# HC4 Ansible - Infrastructure Automation
+# Ansible-Home for Infrastructure Automation
 
 This repository contains Ansible playbooks and roles for the automated setup and optimization of **Odroid HC4** (Home Cloud 4) or similar NAS/Home Server systems.
 
 ## Project Overview
 
-The goal of this project is to provide a reproducible, one-command setup for a stable and high-performance server environment. It covers everything from basic utilities to storage optimization and network sharing.
+The goal of this project is to provide a reproducible, one-command setup for a stable and high-performance server environment. It covers everything from basic utilities to storage optimization, containerization, and secure external access.
 
 ## Features & Roles
 
 The main playbook (`site.yml`) executes the following roles:
 
-- **`common`**: Installs essential utilities (git, curl, zip, etc.) and sets up the base environment.
+- **`common`**: Installs essential utilities, sets timezone to **Asia/Seoul**, and configures a premium dev environment:
+    - **Vim**: Custom `.vimrc` with OSC 52 clipboard support.
+    - **Zsh**: Oh My Zsh with `macovsky-ruby` theme, `autosuggestions`, and `syntax-highlighting`.
 - **`optimize`**: Applies system-level performance optimizations and kernel parameter tweaks.
-- **`storage`**: Automates mounting of drives, `/etc/fstab` configuration, and optimal swappiness settings.
-- **`log2ram`**: Extends SD card lifespan by mounting `/var/log` in RAM (requires reboot).
+- **`storage`**: Automates mounting of drives, `/etc/fstab` configuration (using UUIDs), and optimal swappiness settings.
+- **`swapfile`**: Creates and enables a physical swap file for additional virtual memory.
+- **`log2ram`**: Extends SD card lifespan by mounting `/var/log` in RAM.
 - **`zram`**: Configures RAM-based swap space with compression (zstd) to maximize available memory.
 - **`samba`**: Sets up Network-Attached Storage (NAS) capabilities by configuring Samba shares.
-- **`packages`**: Installs additional application packages tailored for the server environment.
+- **`packages`**: Installs additional application packages (e.g., `ncdu`, `htop`, `lm-sensors`).
+- **`docker`**: Installs Docker Engine, configures `data-root`, and sets up `dockman` for stack management.
+- **`nginx_proxy_manager`**: Deploys Nginx Proxy Manager (NPM) for easy reverse proxy and SSL management.
+- **`cloudflare`**: Sets up Cloudflare Tunnel (`cloudflared`) for secure, no-port-forwarding external access.
+- **`caddy`**: (Optional) Deploys Caddy server with automatic HTTP/3 support and simple reverse proxy configuration.
 
 ## Prerequisites
 
 - **Control Node**: Ansible installed on your local machine.
 - **Managed Node**: Odroid HC4 running a Debian-based OS (e.g., Armbian, Ubuntu).
-- **SSH**: Passwordless SSH access is recommended but can be configured in the inventory.
+- **SSH**: Passwordless SSH access is recommended.
 
 ## Quick Start
 
-
 ### 0. Configure ansible.cfg
-Edit `ansible.cfg` to match your configuration:
-```cfg
-# Connection account (Replace with your actual username)
-remote_user = your_user_name
-```
+Copy `ansible.cfg.example` to `ansible.cfg` and edit as needed.
 
 ### 1. Configure Inventory
-Edit `inventories/inventory.ini` to match your server's details:
+Copy `inventories/inventory.ini.example` to `inventories/inventory.ini` and set your server's IP and user:
 ```ini
 [hc4]
-your_ip ansible_user=your_user_name ansible_port=your_port ansible_python_interpreter=/usr/bin/python3
+your_ip ansible_user=your_user_name ansible_port=your_port
 ```
 
 ### 2. Customize Variables
-Check `inventories/group_vars/hc4.yml` to define your Samba shares and system limits:
-```yaml
-samba_shares:
-  - name: "name"
-    path: "/foo/bar"
-```
+Copy `inventories/group_vars/all.yml.example` to `inventories/group_vars/all.yml` and define your paths and tokens.
+Also, create `inventories/group_vars/hc4.yml` for host-specific settings like Samba shares and Caddy proxies.
 
 ### 3. Run the Playbook
 Execute the full setup:
@@ -55,24 +53,29 @@ Execute the full setup:
 ansible-playbook site.yml
 ```
 
-To update only specific packages using tags:
-```bash
-ansible-playbook site.yml --tags "pkg_only"
-```
+### Selective Execution (Tags)
+You can run specific parts of the setup using tags:
+- `common_only`: Only run common setup (Vim, Zsh, etc.)
+- `pkg_only`: Only install/update packages
+- `docker_only`: Only setup Docker and Dockman
+- `swapfile_only`: Only manage swapfile
+- `npm_only`: Only setup Nginx Proxy Manager
+- `cloudflare_only`: Only setup Cloudflare Tunnel
 
 ## Project Structure
 
 ```text
 .
-├── ansible.cfg          # Ansible configuration defaults
 ├── site.yml             # Main project entry point
-├── inventories/         # Connection and host variable definitions
-│   └── group_vars/      # Environment-specific variables
+├── inventories/         # Host and group variable definitions
+│   └── group_vars/      # Configuration variables
 └── roles/               # Modular automation components
-    ├── common/          # Base setup
-    ├── log2ram/         # SD card optimization
-    ├── optimize/        # Performance tuning
-    ├── samba/           # File sharing
+    ├── common/          # Base setup (Vim, Zsh, Timezone)
+    ├── docker/          # Docker & Dockman setup
+    ├── storage/         # Drive mounting & fstab
+    ├── cloudflare/      # Cloudflare Tunnel
+    ├── nginx_proxy_manager/ # NPM Container
+    ├── caddy/           # Caddy Server
     └── ...
 ```
 

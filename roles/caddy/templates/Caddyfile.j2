@@ -1,0 +1,24 @@
+{
+    # Completely disable automatic HTTPS as Cloudflare handles SSL
+    auto_https off
+}
+
+{% for item in caddy_proxies %}
+# Explicitly use port 80 to match Cloudflare Tunnel destination
+http://{{ item.domain }}:80 {
+    {% if item.user is defined and item.password_plain is defined %}
+    {% set current_hash = hashed_results.results[loop.index0].stdout %}
+    basicauth / {
+        {{ item.user }} {{ current_hash }}
+    }
+    {% endif %}
+
+    reverse_proxy {{ item.backend }}
+}
+{% endfor %}
+
+# This matches any request to port 80 that didn't match the domains above
+:80 {
+    root * /var/www/html
+    file_server
+}

@@ -1,5 +1,20 @@
 ---
+hc4_root_dir: "/mounted_somewhere/hc4"
+
+home_root_dir: "{{ hc4_root_dir }}/home"
+
+docker_root_dir: "{{ hc4_root_dir }}/docker"
+
+swap_path: "{{ hc4_root_dir }}/swapfile"
+
 # Samba Configuration
 samba_shares:
   - name: "name"
     path: "/foo/bar"
+
+# Add Caddy Proxy List
+caddy_proxies:
+  - domain: "foo.yourdomain.com"
+    backend: "foo:12345"
+  - domain: "bar.yourdomain.com"
+    backend: "bar:80"
