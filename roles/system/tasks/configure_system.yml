@@ -22,3 +22,18 @@
   ansible.builtin.hostname:
     name: "{{ custom_hostname }}"
   when: custom_hostname is defined
+
+- name: Configure apt to not install recommends and suggests
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/99-no-recommends
+    content: |
+      APT::Install-Recommends "false";
+      APT::Install-Suggests "false";
+    mode: '0644'
+
+- name: Allow current user to run sudo without password
+  ansible.builtin.copy:
+    content: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }} ALL=(ALL) NOPASSWD: ALL\n"
+    dest: "/etc/sudoers.d/{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"

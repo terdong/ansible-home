@@ -66,6 +66,7 @@
     cmd: |
       source "{{ ansible_env.HOME }}/.sdkman/bin/sdkman-init.sh"
       sdk install sbt
+    executable: /bin/zsh
     creates: "{{ ansible_env.HOME }}/.sdkman/candidates/sbt"
 
 - name: Install Scala CLI via SDKMAN
@@ -73,6 +74,7 @@
     cmd: |
       source "{{ ansible_env.HOME }}/.sdkman/bin/sdkman-init.sh"
       sdk install scalacli
+    executable: /bin/zsh
     creates: "{{ ansible_env.HOME }}/.sdkman/candidates/scalacli"
 
 - name: Download Coursier binary (compressed)
