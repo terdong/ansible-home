@@ -85,7 +85,7 @@ wakatime_api_key: "your_wakatime_api_key"
 ### 3. Run the Playbook
 Run the full environment setup:
 ```bash
-ansible-playbook site.yml
+./bootstrap.sh
 ```
 
 ### Selective Execution (Tags)
