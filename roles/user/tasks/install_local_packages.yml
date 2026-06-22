@@ -1,7 +1,14 @@
 ---
-- name: Install Antigravity CLI (User space)
-  ansible.builtin.shell:
-    cmd: curl -fsSL https://antigravity.google/cli/install.sh | bash
+- name: Download Antigravity CLI installer
+  ansible.builtin.get_url:
+    url: https://antigravity.google/cli/install.sh
+    dest: /tmp/install_agy.sh
+    mode: "0755"
+  changed_when: false
+
+- name: Install Antigravity CLI
+  ansible.builtin.command:
+    cmd: /tmp/install_agy.sh
     creates: "{{ ansible_env.HOME }}/.local/bin/agy"
 
 - name: Ensure skills directory exists
@@ -15,3 +22,77 @@
     src: general-rules
     dest: "{{ ansible_env.HOME }}/.gemini/antigravity-cli/skills/"
     mode: "0644"
+
+- name: Create GraalVM installation directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/lib/graalvm"
+    state: directory
+    mode: "0755"
+
+- name: Download and extract GraalVM
+  ansible.builtin.unarchive:
+    src: https://download.oracle.com/graalvm/25/latest/graalvm-jdk-25_linux-x64_bin.tar.gz
+    dest: "{{ ansible_env.HOME }}/.local/lib/graalvm"
+    extra_opts: [--strip-components=1]
+    remote_src: true
+    creates: "{{ ansible_env.HOME }}/.local/lib/graalvm/bin/java"
+
+- name: Register GraalVM in .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/lib/graalvm/bin:$PATH"'
+    state: present
+    create: true
+    mode: "0644"
+
+- name: Install SDKMAN
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      curl -s "https://get.sdkman.io" | zsh
+    creates: "{{ ansible_env.HOME }}/.sdkman/bin/sdkman-init.sh"
+    executable: /bin/zsh
+
+- name: Ensure SDKMAN is initialized in .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"'
+    state: present
+    create: true
+    mode: "0644"
+
+- name: Install SBT via SDKMAN
+  ansible.builtin.shell:
+    cmd: |
+      source "{{ ansible_env.HOME }}/.sdkman/bin/sdkman-init.sh"
+      sdk install sbt
+    creates: "{{ ansible_env.HOME }}/.sdkman/candidates/sbt"
+
+- name: Install Scala CLI via SDKMAN
+  ansible.builtin.shell:
+    cmd: |
+      source "{{ ansible_env.HOME }}/.sdkman/bin/sdkman-init.sh"
+      sdk install scalacli
+    creates: "{{ ansible_env.HOME }}/.sdkman/candidates/scalacli"
+
+- name: Download Coursier binary (compressed)
+  ansible.builtin.get_url:
+    url: "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz"
+    dest: /tmp/cs.gz
+    mode: "0644"
+
+- name: Extract and install Coursier
+  ansible.builtin.shell:
+    cmd: gzip -d < /tmp/cs.gz > "{{ ansible_env.HOME }}/.local/bin/cs"
+    creates: "{{ ansible_env.HOME }}/.local/bin/cs"
+
+- name: Set execute permission for Coursier
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin/cs"
+    mode: "0755"
+    state: file
+
+- name: Run Coursier setup
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.local/bin/cs setup --yes"
+    creates: "{{ ansible_env.HOME }}/.local/share/coursier/bin/cs"

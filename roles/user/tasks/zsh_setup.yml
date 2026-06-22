@@ -1,8 +1,9 @@
 ---
 - name: Install Zsh and Git
   ansible.builtin.apt:
-    name: [zsh, git, curl]
+    name: [zsh]
     state: present
+  become: true
 
 - name: Install Oh My Zsh
   ansible.builtin.shell:
@@ -49,14 +50,14 @@
     line: 'export PATH="$HOME/.local/bin:$PATH"'
     state: present
     create: true
+    mode: "0644"
 
-# - name: Add neofetch
-#   ansible.builtin.lineinfile:
-#     path: "{{ ansible_env.HOME }}/.zshrc"
-#     line: "neofetch"
-#     insertafter: EOF
+- name: Check if current shell is already Zsh
+  ansible.builtin.command: grep -E "^{{ ansible_user_id }}:.*:/bin/zsh$" /etc/passwd
+  register: check_shell
+  failed_when: false
+  changed_when: false
 
-- name: Set Default Shell to Zsh
-  ansible.builtin.user:
-    name: "{{ ansible_user_id }}"
-    shell: /bin/zsh
+- name: Set Default Shell to Zsh for current user
+  ansible.builtin.command: chsh -s /bin/zsh
+  when: check_shell.rc != 0

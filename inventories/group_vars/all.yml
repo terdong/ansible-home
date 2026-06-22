@@ -1,5 +1,12 @@
 # Config directory
 config_dir: "{{ ansible_env.HOME }}/.config"
 
+git_user_name: 
+git_user_email:
+
+wakatime_api_url:
+wakatime_api_key:
+
+
 # Custom hostname for the system (optional)
 # custom_hostname: "my-desktop"

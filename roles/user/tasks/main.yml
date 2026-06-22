@@ -1,4 +1,8 @@
 ---
+- name: Set zsh shell
+  ansible.builtin.set_fact:
+    user_shell_executable: /bin/zsh
+
 - name: Include Vim settings
   ansible.builtin.include_tasks: vim_setup.yml
 
@@ -7,3 +11,6 @@
 
 - name: Include installation of local user packages
   ansible.builtin.include_tasks: install_local_packages.yml
+
+- name: Include configuration of user
+  ansible.builtin.include_tasks: configure_user.yml

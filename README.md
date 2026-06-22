@@ -39,6 +39,11 @@ The main playbook ([site.yml](file:///home/darren/projects_etc/ansible-home/site
   - Automatically appends local binary path (`~/.local/bin`) to `$PATH`.
 - **Antigravity CLI**: Automatically installs the Antigravity CLI tools to `~/.local/bin/agy`.
 - **Antigravity Customization (Skills)**: Ensures the skill directory exists (`~/.gemini/antigravity-cli/skills`) and copies the `general-rules` customization files.
+- **GraalVM Setup**: Automatically downloads and installs **GraalVM JDK 25** to `~/.local/lib/graalvm` and registers it in the system `PATH` via `.zshrc`.
+- **SSH Security Configuration**: Ensures the `~/.ssh` directory has correct permissions (`0700`) and secures the default private key `~/.ssh/id_rsa` with `0600` permissions.
+- **User Settings Generation**: Validates configuration parameters and generates customized configuration files:
+  - `~/.gitconfig` containing the configured `git_user_name` and `git_user_email`.
+  - `~/.wakatime.cfg` containing the configured `wakatime_api_url` and `wakatime_api_key`.
 
 ---
 
@@ -60,10 +65,18 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
 ```
 
 ### 2. Customize Group Variables
-Edit [inventories/group_vars/all.yml](file:///home/darren/projects_etc/ansible-home/inventories/group_vars/all.yml) to configure custom hostname and directories:
+Edit [inventories/group_vars/all.yml](file:///home/darren/projects_etc/ansible-home/inventories/group_vars/all.yml) to configure user credentials, API keys, and custom settings:
 ```yaml
 # Config directory
 config_dir: "{{ ansible_env.HOME }}/.config"
+
+# Git user details (Required)
+git_user_name: "Your Git Name"
+git_user_email: "your.email@example.com"
+
+# WakaTime API details (Required)
+wakatime_api_url: "https://api.wakatime.com/api/v1"
+wakatime_api_key: "your_wakatime_api_key"
 
 # Custom hostname for the system (optional)
 # custom_hostname: "my-desktop"

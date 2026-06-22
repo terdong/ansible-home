@@ -1,0 +1,46 @@
+---
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: "0700"
+
+- name: Check if id_rsa exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+  register: user_id_rsa_stat
+
+- name: Secure id_rsa private key
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+    state: file
+    mode: "0600"
+  when: user_id_rsa_stat.stat.exists
+  failed_when: false
+
+- name: Ensure all required configuration variables are provided
+  ansible.builtin.assert:
+    that:
+      - git_user_name | length > 0
+      - git_user_email | length > 0
+      - wakatime_api_url | length > 0
+      - wakatime_api_key | length > 0
+    fail_msg: "Required variables are missing or empty! (Please check git_user_name, git_user_email, wakatime_api_url, wakatime_api_key.)"
+
+- name: Create .gitconfig
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.gitconfig"
+    mode: "0644"
+    content: |
+      [user]
+          name = {{ git_user_name }}
+          email = {{ git_user_email }}
+
+- name: Create .wakatime.cfg
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.wakatime.cfg"
+    mode: "0600"
+    content: |
+      [settings]
+      api_url = {{ wakatime_api_url }}
+      api_key = {{ wakatime_api_key }}
