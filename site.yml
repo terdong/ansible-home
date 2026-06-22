@@ -1,17 +1,12 @@
 ---
-- name: HC4 Infrastructure Initial Setup
-  hosts: hc4
+- name: Configure WSL Ubuntu 26.04 LTS Environment
+  hosts: my_desktop
   become: true
   roles:
-    - { role: common, tags: ["common_only"] } # Install utilities (git, curl, etc.)
-    - optimize # Optimize system
-    - storage # Configure fstab, mount, and swappiness
-    - log2ram # SD card optimization (Requires Reboot)
-    - { role: swapfile, tags: ["swapfile_only"] }
-    - zram # RAM swap configuration (Requires Service Restart)
-    - samba # Network share configuration
-    - { role: packages, tags: ["pkg_only"] }
-    - { role: docker, tags: ["docker_only"] }
-    - { role: nginx_proxy_manager, tags: ["nginx_proxy_manager_only"] }
-    # - { role: caddy, tags: ["caddy_only"] }
-    - { role: cloudflare, tags: ["cloudflare_only"] }
+    - { role: system, tags: ["system_only"] }
+
+- name: User Environment Configuration
+  hosts: my_desktop
+  become: false
+  roles:
+    - { role: user, tags: ["user_only"] }

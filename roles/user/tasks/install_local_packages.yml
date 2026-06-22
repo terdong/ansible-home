@@ -1,0 +1,17 @@
+---
+- name: Install Antigravity CLI (User space)
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://antigravity.google/cli/install.sh | bash
+    creates: "{{ ansible_env.HOME }}/.local/bin/agy"
+
+- name: Ensure skills directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gemini/antigravity-cli/skills"
+    state: directory
+    mode: "0755"
+
+- name: Copy general-rules folder to skills directory
+  ansible.builtin.copy:
+    src: general-rules
+    dest: "{{ ansible_env.HOME }}/.gemini/antigravity-cli/skills/"
+    mode: "0644"

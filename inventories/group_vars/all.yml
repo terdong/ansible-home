@@ -1,0 +1,5 @@
+# Config directory
+config_dir: "{{ ansible_env.HOME }}/.config"
+
+# Custom hostname for the system (optional)
+# custom_hostname: "my-desktop"

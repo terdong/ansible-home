@@ -1,14 +1,12 @@
 ---
 - name: Install Vim
-  apt:
+  ansible.builtin.apt:
     name: vim
     state: present
 
 - name: Configure Vim (.vimrc)
-  copy:
-    dest: "{{ user_home_dir }}/.vimrc"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.vimrc"
     mode: "0644"
     content: |
       " 기본 설정

@@ -1,0 +1,6 @@
+---
+- name: Apply OS level configurations
+  ansible.builtin.include_tasks: configure_system.yml
+
+- name: Install system packages
+  ansible.builtin.include_tasks: install_packages.yml

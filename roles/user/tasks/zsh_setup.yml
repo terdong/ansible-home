@@ -1,0 +1,62 @@
+---
+- name: Install Zsh and Git
+  ansible.builtin.apt:
+    name: [zsh, git, curl]
+    state: present
+
+- name: Install Oh My Zsh
+  ansible.builtin.shell:
+    cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    creates: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  become: true
+  become_user: "{{ ansible_user_id }}"
+
+- name: Download Zsh Plugins
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
+    version: master
+    update: false
+  become: true
+  become_user: "{{ ansible_user_id }}"
+  loop:
+    - name: "zsh-autosuggestions"
+      repo: "https://github.com/zsh-users/zsh-autosuggestions"
+    - name: "zsh-syntax-highlighting"
+      repo: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+
+- name: Set Zsh Theme to 'macovsky-ruby'
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: "^ZSH_THEME="
+    line: 'ZSH_THEME="macovsky-ruby"'
+
+- name: Configure .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: "^plugins="
+    line: "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)"
+
+- name: Add time to macovsky-ruby theme
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'PROMPT="[%D{% raw %}{%H:%M:%S}{% endraw %}] $PROMPT"'
+    insertafter: EOF
+
+- name: Add .local/bin to PATH in .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    state: present
+    create: true
+
+# - name: Add neofetch
+#   ansible.builtin.lineinfile:
+#     path: "{{ ansible_env.HOME }}/.zshrc"
+#     line: "neofetch"
+#     insertafter: EOF
+
+- name: Set Default Shell to Zsh
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh

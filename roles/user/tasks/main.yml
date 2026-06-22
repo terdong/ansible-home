@@ -1,0 +1,9 @@
+---
+- name: Include Vim settings
+  ansible.builtin.include_tasks: vim_setup.yml
+
+- name: Include Zsh settings
+  ansible.builtin.include_tasks: zsh_setup.yml
+
+- name: Include installation of local user packages
+  ansible.builtin.include_tasks: install_local_packages.yml

@@ -1,0 +1,39 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade all packages to the latest version
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: true
+
+- name: Install utility packages
+  ansible.builtin.apt:
+    name:
+      - btop
+      - git
+      - curl
+      - wget
+      - httpie
+      - iproute2
+    state: present
+    update_cache: true
+
+- name: Remove unnecessary packages (Comprehensive)
+  ansible.builtin.apt:
+    name:
+      - telnet
+      - ftp
+      # Unnecessary recovery tools on headless servers
+      - friendly-recovery
+      # Rarely used byobu (if tmux/screen is preferred)
+      - byobu
+    state: absent
+    purge: true
+
+- name: Autoremove unused dependencies
+  ansible.builtin.apt:
+    autoremove: true
+    purge: true
