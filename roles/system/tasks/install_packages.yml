@@ -20,6 +20,7 @@
       - zip
       - httpie
       - iproute2
+      - ripgrep
     state: present
     update_cache: true
 

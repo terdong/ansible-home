@@ -52,12 +52,26 @@
     create: true
     mode: "0644"
 
-- name: Check if current shell is already Zsh
-  ansible.builtin.command: grep -E "^{{ ansible_user_id }}:.*:/bin/zsh$" /etc/passwd
-  register: check_shell
-  failed_when: false
-  changed_when: false
-
 - name: Set Default Shell to Zsh for current user
-  ansible.builtin.command: chsh -s /bin/zsh
-  when: check_shell.rc != 0
+  ansible.builtin.user:
+    name: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"
+    shell: /bin/zsh
+  become: true
+
+- name: Create custom zsh completion directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zsh/completion"
+    state: directory
+    mode: '0755'
+
+- name: Download Docker zsh completion script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
+    dest: "{{ ansible_env.HOME }}/.zsh/completion/_docker"
+    mode: '0644'
+
+- name: Add Docker completion path to .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'fpath=({{ ansible_env.HOME }}/.zsh/completion $fpath)'
+    insertbefore: "^source \\$ZSH/oh-my-zsh.sh"
