@@ -44,3 +44,17 @@
       [settings]
       api_url = {{ wakatime_api_url }}
       api_key = {{ wakatime_api_key }}
+
+- name: Add JAVA_TOOL_OPTIONS to ~/.zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED"'
+    create: true
+    state: present
+    insertafter: EOF
+
+- name: Apply changes to current shell
+  ansible.builtin.shell:
+    cmd: source "{{ ansible_env.HOME }}/.zshrc"
+    executable: /bin/zsh
+  changed_when: false

@@ -3,3 +3,5 @@
 .history
 *.log
 **/roles/caddy/files/index.html
+
+**/all.yml

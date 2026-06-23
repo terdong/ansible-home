@@ -1,7 +1,7 @@
 # Config directory
 config_dir: "{{ ansible_env.HOME }}/.config"
 
-git_user_name: 
+git_user_name:
 git_user_email:
 
 wakatime_api_url:
