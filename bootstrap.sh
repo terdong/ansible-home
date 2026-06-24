@@ -11,9 +11,17 @@ else
     echo "Sudoers configuration already exists for $USER_ID."
 fi
 
-sudo apt update
+if ! command -v ansible &> /dev/null; then
+    echo "Ansible is not installed. Starting installation..."
 
-sudo apt install -y ansible
+    sudo apt update
+    sudo apt install -y ansible
+else
+    echo "Ansible is already installed."
+fi
 
 echo "Running Ansible Playbook..."
+
+ansible-galaxy install -r requirements.yml
+
 ansible-playbook site.yml

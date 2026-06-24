@@ -22,6 +22,7 @@
       - iproute2
       - ripgrep
       - nodejs
+      - npm
     state: present
     update_cache: true
 
@@ -41,3 +42,9 @@
   ansible.builtin.apt:
     autoremove: true
     purge: true
+
+- name: Install pnpm globally using npm
+  community.general.npm:
+    name: pnpm
+    global: yes
+    state: present
