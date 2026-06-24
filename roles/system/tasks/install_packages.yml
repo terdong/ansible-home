@@ -21,6 +21,7 @@
       - httpie
       - iproute2
       - ripgrep
+      - nodejs
     state: present
     update_cache: true
 
